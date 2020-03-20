@@ -1,12 +1,7 @@
-/**
-TODO
- help
- logo/image
- bio maker?
- auto-launch add-on
+/** SlideTemplate
  */
 
-// [START template]
+// [START SlideTemplate]
 /**
  * @OnlyCurrentDoc Limits the script to only accessing the current presentation.
  */
@@ -113,22 +108,24 @@ function template(varList) {
 function collectVars() {
   var presentation = SlidesApp.getActivePresentation();
   var slides = presentation.getSlides();
-  var texts = [];
-  for (var i = 0; i < slides.length; i++) {
-    var slide = SlidesApp.getActivePresentation().getSlides()[i];    
-    getElementTexts(slide.getPageElements())
-    texts = texts.concat(getElementTexts(slide.getPageElements()));    
-  }  
+  Logger.log("Number of slide" + slides.length);
+  var re = /(\${[A-Za-z0-9]+})/;
   var templateVars = [];
-  texts.forEach(function(text) {
-    var re = /(\${[A-Za-z0-9]+})/;
-    tv = findAll(re, text.asRenderedString(),templateVars);
-    templateVars = templateVars.concat(tv);
-  });
+  for (var i = 0; i < slides.length; i++) {
+    var slide = presentation.getSlides()[i];    
+    //this fails if there are images
+    var texts = getElementTexts(slide.getPageElements()).forEach(function(text) {
+        Logger.log(typeof text);
+        //Logger.log(text.getPageElementType());
+        templateVars = templateVars.concat(findAll(re, text.asRenderedString(),templateVars));
+    });
+    Logger.log("Slide " + i);
+    Logger.log(templateVars);
+  }  
   var unique = removeDups(templateVars);
   //or leave in order discovered?
   unique.sort();
   Logger.log(unique);
   return unique;
 }
-// [END template]
+// [END SlideTemplate]
